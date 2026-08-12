@@ -22,6 +22,7 @@ try:
     from kivy.graphics import Color, Rectangle, RoundedRectangle
     from kivy.core.window import Window
     from kivy.metrics import dp
+    from kivy.clock import Clock
 
     # Colors
     BG_COLOR = (0.06, 0.08, 0.12, 1)       # Dark Slate BG
@@ -146,7 +147,7 @@ try:
             root.add_widget(card)
 
             footer = Label(
-                text="[color=445566]System Protected • v3.2 Updated[/color]",
+                text="[color=445566]System Protected • v3.3 Timer Added[/color]",
                 markup=True,
                 font_size='11sp',
                 size_hint_y=None,
@@ -178,6 +179,8 @@ try:
     class DashboardScreen(Screen):
         def __init__(self, **kwargs):
             super().__init__(**kwargs)
+            self.timer_event = None
+            self.remaining_seconds = 0
             
             with self.canvas.before:
                 Color(*BG_COLOR)
@@ -204,7 +207,6 @@ try:
             )
             ctrl_card.bind(minimum_height=ctrl_card.setter('height'))
 
-            # Expanded Quotex Asset List
             ctrl_card.add_widget(Label(
                 text="[color=8A99AD]Select Asset / Pair:[/color]", 
                 markup=True, 
@@ -228,7 +230,6 @@ try:
             )
             ctrl_card.add_widget(self.pair_spinner)
 
-            # Added 5s, 10s, 15s, 30s Timeframes
             ctrl_card.add_widget(Label(
                 text="[color=8A99AD]Select Trade Duration:[/color]", 
                 markup=True, 
@@ -297,29 +298,70 @@ try:
             self.bg.pos = instance.pos
 
         def generate_quotex_signal(self, instance):
-            pair = self.pair_spinner.text
-            timeframe = self.tf_spinner.text
+            # Cancel active timer if already running
+            if self.timer_event:
+                self.timer_event.cancel()
+
+            self.current_pair = self.pair_spinner.text
+            self.current_tf = self.tf_spinner.text
             
-            direction = random.choice(["CALL (UP ⬆)", "PUT (DOWN ⬇)"])
-            is_call = "CALL" in direction
-            color_code = "00E676" if is_call else "FF3355"
-            accuracy = random.randint(89, 98)
+            # Map duration string to seconds
+            tf_seconds_map = {
+                '5 SECONDS': 5,
+                '10 SECONDS': 10,
+                '15 SECONDS': 15,
+                '30 SECONDS': 30,
+                '1 MINUTE': 60,
+                '2 MINUTES': 120,
+                '5 MINUTES': 300
+            }
+            
+            self.remaining_seconds = tf_seconds_map.get(self.current_tf, 60)
+            
+            self.direction = random.choice(["CALL (UP ⬆)", "PUT (DOWN ⬇)"])
+            is_call = "CALL" in self.direction
+            self.color_code = "00E676" if is_call else "FF3355"
+            self.accuracy = random.randint(89, 98)
             
             now = datetime.now()
-            entry_time = (now + timedelta(seconds=5)).strftime("%H:%M:%S")
+            self.entry_time = (now + timedelta(seconds=2)).strftime("%H:%M:%S")
             
+            # Start Countdown Loop
+            self.update_signal_display()
+            self.timer_event = Clock.schedule_interval(self.tick_timer, 1)
+
+        def tick_timer(self, dt):
+            if self.remaining_seconds > 0:
+                self.remaining_seconds -= 1
+                self.update_signal_display()
+            else:
+                self.update_signal_display(finished=True)
+                if self.timer_event:
+                    self.timer_event.cancel()
+
+        def update_signal_display(self, finished=False):
+            mins, secs = divmod(self.remaining_seconds, 60)
+            timer_str = f"{mins:02d}:{secs:02d}"
+            
+            if finished:
+                timer_display = f"[color=00E5FF][size=20sp]TRADE FINISHED 🏁[/size][/color]"
+            else:
+                timer_display = f"[color=FFD700][size=26sp]⏱️ {timer_str}[/size][/color]"
+
             self.result_label.text = (
                 f"[b][color=00E5FF]=== LIVE SIGNAL RESULTS ===[/color][/b]\n\n"
-                f"[b]PAIR:[/b] [color=FFFFFF]{pair}[/color]\n"
-                f"[b]DURATION:[/b] [color=FFFFFF]{timeframe}[/color]\n\n"
-                f"[b]ACTION:[/b] [color={color_code}][size=22sp]{direction}[/size][/color]\n\n"
-                f"[b]ENTRY TIME:[/b] [color=FFFFFF]{entry_time}[/color]\n"
-                f"[b]WIN RATE:[/b] [color=00E676]{accuracy}% Accuracy[/color]\n"
-                f"[b]STRATEGY:[/b] [color=8A99AD]Non-Martingale / Direct Entry[/color]\n\n"
-                f"[i][color=556578]Execute trade immediately at candle start.[/color][/i]"
+                f"[b]PAIR:[/b] [color=FFFFFF]{self.current_pair}[/color]\n"
+                f"[b]DURATION:[/b] [color=FFFFFF]{self.current_tf}[/color]\n\n"
+                f"[b]ACTION:[/b] [color={self.color_code}][size=22sp]{self.direction}[/size][/color]\n\n"
+                f"[b]REMAINING TIME:[/b]\n{timer_display}\n\n"
+                f"[b]ENTRY TIME:[/b] [color=FFFFFF]{self.entry_time}[/color]\n"
+                f"[b]WIN RATE:[/b] [color=00E676]{self.accuracy}% Accuracy[/color]\n\n"
+                f"[i][color=556578]Execute trade immediately on Quotex![/color][/i]"
             )
 
         def logout(self, instance):
+            if self.timer_event:
+                self.timer_event.cancel()
             self.manager.current = 'login'
 
     # --- MAIN APP ---
