@@ -13,7 +13,6 @@ sys.excepthook = handle_exception
 try:
     from kivy.app import App
     from kivy.uix.boxlayout import BoxLayout
-    from kivy.uix.gridlayout import GridLayout
     from kivy.uix.label import Label
     from kivy.uix.button import Button
     from kivy.uix.textinput import TextInput
@@ -22,19 +21,19 @@ try:
     from kivy.uix.screenmanager import ScreenManager, Screen
     from kivy.graphics import Color, Rectangle, RoundedRectangle
     from kivy.core.window import Window
+    from kivy.metrics import dp
 
-    # Dark Modern Theme Colors
-    BG_COLOR = (0.07, 0.09, 0.14, 1)       # #121824 Deep Dark Slate
-    CARD_COLOR = (0.13, 0.17, 0.25, 1)     # #212B40 Card Container
-    INPUT_BG = (0.09, 0.12, 0.18, 1)       # #171F2E Input Field BG
+    # Colors
+    BG_COLOR = (0.06, 0.08, 0.12, 1)       # Dark Slate BG
+    CARD_COLOR = (0.12, 0.16, 0.23, 1)     # Card Background
+    INPUT_BG = (0.07, 0.10, 0.15, 1)       # Clear Dark Input Box
 
-    # Card Wrapper with Rounded Corners
     class ColoredCard(BoxLayout):
-        def __init__(self, bg_color=CARD_COLOR, radius_val=12, **kwargs):
+        def __init__(self, bg_color=CARD_COLOR, radius_val=10, **kwargs):
             super().__init__(**kwargs)
             with self.canvas.before:
                 Color(*bg_color)
-                self.rect = RoundedRectangle(size=self.size, pos=self.pos, radius=[radius_val,])
+                self.rect = RoundedRectangle(size=self.size, pos=self.pos, radius=[dp(radius_val),])
             self.bind(size=self._update_rect, pos=self._update_rect)
 
         def _update_rect(self, instance, value):
@@ -51,63 +50,71 @@ try:
                 self.bg = Rectangle(size=Window.size, pos=self.pos)
             self.bind(size=self._update_bg, pos=self._update_bg)
 
-            main_layout = BoxLayout(orientation='vertical', padding=[25, 40, 25, 30], spacing=20)
+            root = BoxLayout(orientation='vertical', padding=[dp(20), dp(30), dp(20), dp(20)], spacing=dp(15))
 
-            # Header / Logo Title
+            # Header Title
             header = Label(
                 text="[b][color=00E5FF]QUOTEX[/color] [color=FFFFFF]PRO BOT[/color][/b]\n"
-                     "[size=13sp][color=8A99AD]AI Binary Signal Generator[/color][/size]",
+                     "[size=13sp][color=8A99AD]Binary Options Signal Tool[/color][/size]",
                 markup=True,
-                font_size='26sp',
+                font_size='24sp',
                 size_hint_y=None,
-                height=70,
+                height=dp(60),
                 halign='center'
             )
-            main_layout.add_widget(header)
+            root.add_widget(header)
 
-            # Login Form Card
-            card = ColoredCard(bg_color=CARD_COLOR, orientation='vertical', padding=[20, 25, 20, 25], spacing=12)
-            
-            card_title = Label(
-                text="[b][color=FFFFFF]Account Authorization[/color][/b]",
+            # Center Card (Auto Height - Squeeze Fix)
+            card = ColoredCard(
+                bg_color=CARD_COLOR, 
+                orientation='vertical', 
+                padding=[dp(20), dp(20), dp(20), dp(20)], 
+                spacing=dp(10),
+                size_hint=(1, None)
+            )
+            card.bind(minimum_height=card.setter('height'))
+
+            card.add_widget(Label(
+                text="[b][color=FFFFFF]Account Login[/color][/b]",
                 markup=True,
                 font_size='18sp',
                 size_hint_y=None,
-                height=30
-            )
-            card.add_widget(card_title)
+                height=dp(30),
+                halign='center'
+            ))
 
-            # Username Label & Field
+            # Username Section
             card.add_widget(Label(
-                text="[color=8A99AD]Username[/color]", 
+                text="[color=00E5FF]Username:[/color]", 
                 markup=True, 
                 size_hint_y=None, 
-                height=20, 
+                height=dp(20), 
                 halign='left',
-                font_size='12sp'
+                font_size='13sp'
             ))
             self.username = TextInput(
                 text="",
                 hint_text="Enter Username...",
                 multiline=False,
                 size_hint_y=None,
-                height=46,
+                height=dp(48),
                 background_normal='',
                 background_color=INPUT_BG,
                 foreground_color=(1, 1, 1, 1),
-                hint_text_color=(0.4, 0.5, 0.6, 1),
-                padding=[15, 12, 15, 12]
+                hint_text_color=(0.5, 0.55, 0.65, 1),
+                padding=[dp(12), dp(12), dp(12), dp(12)],
+                font_size='15sp'
             )
             card.add_widget(self.username)
 
-            # Password Label & Field
+            # Password Section
             card.add_widget(Label(
-                text="[color=8A99AD]Password[/color]", 
+                text="[color=00E5FF]Password:[/color]", 
                 markup=True, 
                 size_hint_y=None, 
-                height=20, 
+                height=dp(20), 
                 halign='left',
-                font_size='12sp'
+                font_size='13sp'
             ))
             self.password = TextInput(
                 text="",
@@ -115,45 +122,46 @@ try:
                 password=True,
                 multiline=False,
                 size_hint_y=None,
-                height=46,
+                height=dp(48),
                 background_normal='',
                 background_color=INPUT_BG,
                 foreground_color=(1, 1, 1, 1),
-                hint_text_color=(0.4, 0.5, 0.6, 1),
-                padding=[15, 12, 15, 12]
+                hint_text_color=(0.5, 0.55, 0.65, 1),
+                padding=[dp(12), dp(12), dp(12), dp(12)],
+                font_size='15sp'
             )
             card.add_widget(self.password)
 
-            # Status Message
-            self.status = Label(text="", markup=True, size_hint_y=None, height=25, font_size='12sp')
+            # Error / Status
+            self.status = Label(text="", markup=True, size_hint_y=None, height=dp(25), font_size='12sp')
             card.add_widget(self.status)
 
             # Login Button
             login_btn = Button(
                 text="LOGIN TO BOT",
                 size_hint_y=None,
-                height=50,
+                height=dp(48),
                 background_normal='',
-                background_color=(0.0, 0.53, 1.0, 1),
+                background_color=(0.0, 0.5, 1.0, 1),
                 bold=True,
                 font_size='15sp'
             )
             login_btn.bind(on_press=self.do_login)
             card.add_widget(login_btn)
 
-            main_layout.add_widget(card)
+            root.add_widget(card)
 
-            # Footer
+            # Footer Space
             footer = Label(
-                text="[color=556578]Protected System • v3.0 Pro UI[/color]",
+                text="[color=445566]System Protected • v3.1 Fixed[/color]",
                 markup=True,
                 font_size='11sp',
                 size_hint_y=None,
-                height=25
+                height=dp(30)
             )
-            main_layout.add_widget(footer)
+            root.add_widget(footer)
 
-            self.add_widget(main_layout)
+            self.add_widget(root)
 
         def _update_bg(self, instance, value):
             self.bg.size = instance.size
@@ -164,11 +172,11 @@ try:
             pwd = self.password.text.strip()
 
             if not user or not pwd:
-                self.status.text = "[color=FF5252]Error: Enter Username & Password![/color]"
+                self.status.text = "[color=FF5252]Please enter Username & Password![/color]"
                 return
 
             if user == "Mikey Bot" and pwd == "mikey0982":
-                self.status.text = "[color=00E676]Access Granted! Loading...[/color]"
+                self.status.text = "[color=00E676]Login Successful![/color]"
                 self.manager.current = 'dashboard'
             else:
                 self.status.text = "[color=FF5252]Invalid Username or Password![/color]"
@@ -183,33 +191,38 @@ try:
                 self.bg = Rectangle(size=Window.size, pos=self.pos)
             self.bind(size=self._update_bg, pos=self._update_bg)
 
-            layout = BoxLayout(orientation='vertical', padding=[20, 25, 20, 20], spacing=12)
+            layout = BoxLayout(orientation='vertical', padding=[dp(15), dp(20), dp(15), dp(15)], spacing=dp(10))
 
-            # Top Header
             header = Label(
                 text="[b][color=00E5FF]QUOTEX[/color] [color=FFFFFF]LIVE SIGNALS[/color][/b]",
                 markup=True,
-                font_size='22sp',
+                font_size='20sp',
                 size_hint_y=None,
-                height=35
+                height=dp(35)
             )
             layout.add_widget(header)
 
-            # Control Card (Asset & Timeframe Selection)
-            ctrl_card = ColoredCard(bg_color=CARD_COLOR, orientation='vertical', padding=[15, 15, 15, 15], spacing=8)
+            ctrl_card = ColoredCard(
+                bg_color=CARD_COLOR, 
+                orientation='vertical', 
+                padding=[dp(12), dp(12), dp(12), dp(12)], 
+                spacing=dp(6),
+                size_hint=(1, None)
+            )
+            ctrl_card.bind(minimum_height=ctrl_card.setter('height'))
 
             ctrl_card.add_widget(Label(
-                text="[color=8A99AD]Select Asset / Pair:[/color]", 
+                text="[color=8A99AD]Select Asset:[/color]", 
                 markup=True, 
                 size_hint_y=None, 
-                height=18, 
+                height=dp(18), 
                 font_size='12sp'
             ))
             self.pair_spinner = Spinner(
                 text='EURUSD (OTC)',
                 values=('EURUSD (OTC)', 'GBPUSD (OTC)', 'USDJPY (OTC)', 'EURGBP', 'BTCUSD', 'XAUUSD (GOLD)'),
                 size_hint_y=None,
-                height=42,
+                height=dp(42),
                 background_normal='',
                 background_color=INPUT_BG,
                 color=(1, 1, 1, 1)
@@ -217,44 +230,41 @@ try:
             ctrl_card.add_widget(self.pair_spinner)
 
             ctrl_card.add_widget(Label(
-                text="[color=8A99AD]Select Expiry Timeframe:[/color]", 
+                text="[color=8A99AD]Select Timeframe:[/color]", 
                 markup=True, 
                 size_hint_y=None, 
-                height=18, 
+                height=dp(18), 
                 font_size='12sp'
             ))
             self.tf_spinner = Spinner(
                 text='1 MINUTE',
                 values=('1 MINUTE', '2 MINUTES', '5 MINUTES'),
                 size_hint_y=None,
-                height=42,
+                height=dp(42),
                 background_normal='',
                 background_color=INPUT_BG,
                 color=(1, 1, 1, 1)
             )
             ctrl_card.add_widget(self.tf_spinner)
 
-            # Signal Button
             analyze_btn = Button(
                 text="GENERATE SIGNAL",
                 size_hint_y=None,
-                height=48,
+                height=dp(45),
                 background_normal='',
                 background_color=(0.0, 0.8, 0.4, 1),
                 bold=True,
-                font_size='15sp'
+                font_size='14sp'
             )
             analyze_btn.bind(on_press=self.generate_quotex_signal)
             ctrl_card.add_widget(analyze_btn)
 
             layout.add_widget(ctrl_card)
 
-            # Output Card Screen
-            self.result_card = ColoredCard(bg_color=CARD_COLOR, orientation='vertical', padding=[15, 15, 15, 15])
-            
+            self.result_card = ColoredCard(bg_color=CARD_COLOR, orientation='vertical', padding=[dp(12), dp(12), dp(12), dp(12)])
             scroll = ScrollView()
             self.result_label = Label(
-                text="[color=8A99AD]Select your settings above and tap\n[b]'GENERATE SIGNAL'[/b] to receive trading signal.[/color]",
+                text="[color=8A99AD]Select asset above and tap\n[b]'GENERATE SIGNAL'[/b][/color]",
                 markup=True,
                 size_hint_y=None,
                 text_size=(None, None),
@@ -266,11 +276,10 @@ try:
 
             layout.add_widget(self.result_card)
 
-            # Bottom Bar (Logout)
             logout_btn = Button(
                 text="LOGOUT",
                 size_hint_y=None,
-                height=42,
+                height=dp(40),
                 background_normal='',
                 background_color=(0.8, 0.2, 0.2, 1),
                 bold=True
@@ -294,14 +303,14 @@ try:
             accuracy = random.randint(89, 97)
             
             now = datetime.now()
-            entry_time = (now + timedelta(seconds=12)).strftime("%H:%M:%S")
+            entry_time = (now + timedelta(seconds=10)).strftime("%H:%M:%S")
             
             self.result_label.text = (
                 f"[b][color=00E5FF]=== LIVE SIGNAL RESULTS ===[/color][/b]\n\n"
                 f"[b]PAIR:[/b] [color=FFFFFF]{pair}[/color]\n"
                 f"[b]TIMEFRAME:[/b] [color=FFFFFF]{timeframe}[/color]\n\n"
-                f"[b]ACTION:[/b] [color={color_code}][size=24sp]{direction}[/size][/color]\n\n"
-                f"[b]ENTRY TIME:[/b] [color=FFFFFF]{entry_time}[/color] (Next Candle)\n"
+                f"[b]ACTION:[/b] [color={color_code}][size=22sp]{direction}[/size][/color]\n\n"
+                f"[b]ENTRY TIME:[/b] [color=FFFFFF]{entry_time}[/color]\n"
                 f"[b]WIN RATE:[/b] [color=00E676]{accuracy}% Accuracy[/color]\n"
                 f"[b]STRATEGY:[/b] [color=8A99AD]Martingale Max 1 Step[/color]\n\n"
                 f"[i][color=556578]Execute trade immediately at candle start.[/color][/i]"
@@ -335,3 +344,5 @@ except Exception as e:
             return sv
 
     ErrorApp().run()
+
+            
