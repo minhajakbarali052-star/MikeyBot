@@ -1,6 +1,8 @@
 import sys
 import traceback
 import random
+import json
+import urllib.request
 from datetime import datetime, timedelta
 
 # Global Exception Handling
@@ -23,7 +25,6 @@ try:
     from kivy.core.window import Window
     from kivy.metrics import dp
     from kivy.clock import Clock
-    import requests
 
     # Colors
     BG_COLOR = (0.06, 0.08, 0.12, 1)       # Dark Slate BG
@@ -42,21 +43,19 @@ try:
             self.rect.size = instance.size
             self.rect.pos = instance.pos
 
-    # --- TECHNICAL ANALYSIS ENGINE ---
+    # --- TECHNICAL ANALYSIS ENGINE (BUILT-IN NETWORK ONLY) ---
     def analyze_live_market(pair_name):
-        """
-        Fetches live market ticks/candles & calculates RSI & EMA Trends.
-        Returns precise signal data.
-        """
         try:
-            # Live Price Fetching (Binance / Public FX Feeds)
             symbol_clean = pair_name.split(' ')[0].replace('/', '').replace('(OTC)', '')
+            
+            # Built-in urllib Request (Zero External Dependencies)
             if 'BTC' in symbol_clean or 'ETH' in symbol_clean:
                 url = f"https://api.binance.com/api/v3/klines?symbol={symbol_clean}USDT&interval=1m&limit=30"
-                res = requests.get(url, timeout=4).json()
-                closes = [float(candle[4]) for candle in res]
+                req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    data = json.loads(resp.read().decode())
+                    closes = [float(candle[4]) for candle in data]
             else:
-                # Standard Forex Live Price Simulation Engine via Price Action History
                 base_price = 1.0850 if 'EUR' in symbol_clean else (1.2650 if 'GBP' in symbol_clean else 155.20)
                 closes = [base_price + (random.uniform(-0.0020, 0.0020)) for _ in range(30)]
 
@@ -76,12 +75,10 @@ try:
             rs = avg_gain / avg_loss
             rsi = round(100 - (100 / (1 + rs)), 2)
 
-            # EMA Trend Calculation (Short vs Long)
             ema_short = sum(closes[-5:]) / 5
             ema_long = sum(closes[-15:]) / 15
             live_price = round(closes[-1], 5)
 
-            # Decision Logic (RSI + EMA Trend Strategy)
             if rsi < 38 or (ema_short > ema_long and rsi < 60):
                 action = "CALL (UP ⬆)"
                 trend = "STRONG BULLISH 🟢"
@@ -91,7 +88,6 @@ try:
                 trend = "STRONG BEARISH 🔴"
                 win_rate = random.randint(90, 96)
             else:
-                # Micro Trend Reversal
                 if closes[-1] > closes[-2]:
                     action = "CALL (UP ⬆)"
                     trend = "NEUTRAL / REVERSAL ⬆"
@@ -108,8 +104,7 @@ try:
                 'win_rate': win_rate
             }
 
-        except Exception as e:
-            # Safe Fallback Engine
+        except Exception:
             return {
                 'price': 'Market Live',
                 'rsi': 48.5,
@@ -224,7 +219,7 @@ try:
             root.add_widget(card)
 
             footer = Label(
-                text="[color=445566]AI RSI Engine • v4.0 Market Data[/color]",
+                text="[color=445566]AI RSI Engine • Safe Build Edition[/color]",
                 markup=True,
                 font_size='11sp',
                 size_hint_y=None,
@@ -392,7 +387,6 @@ try:
             }
             self.remaining_seconds = tf_seconds_map.get(self.current_tf, 60)
             
-            # --- REAL TECHNICAL ANALYSIS FETCH ---
             analysis = analyze_live_market(self.current_pair)
             
             self.direction = analysis['action']
