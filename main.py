@@ -25,8 +25,8 @@ try:
 
     # Colors
     BG_COLOR = (0.06, 0.08, 0.12, 1)       # Dark Slate BG
-    CARD_COLOR = (0.12, 0.16, 0.23, 1)     # Card Background
-    INPUT_BG = (0.07, 0.10, 0.15, 1)       # Clear Dark Input Box
+    CARD_COLOR = (0.12, 0.16, 0.23, 1)     # Card BG
+    INPUT_BG = (0.07, 0.10, 0.15, 1)       # Input Box BG
 
     class ColoredCard(BoxLayout):
         def __init__(self, bg_color=CARD_COLOR, radius_val=10, **kwargs):
@@ -52,7 +52,6 @@ try:
 
             root = BoxLayout(orientation='vertical', padding=[dp(20), dp(30), dp(20), dp(20)], spacing=dp(15))
 
-            # Header Title
             header = Label(
                 text="[b][color=00E5FF]QUOTEX[/color] [color=FFFFFF]PRO BOT[/color][/b]\n"
                      "[size=13sp][color=8A99AD]Binary Options Signal Tool[/color][/size]",
@@ -64,7 +63,6 @@ try:
             )
             root.add_widget(header)
 
-            # Center Card (Auto Height - Squeeze Fix)
             card = ColoredCard(
                 bg_color=CARD_COLOR, 
                 orientation='vertical', 
@@ -83,7 +81,6 @@ try:
                 halign='center'
             ))
 
-            # Username Section
             card.add_widget(Label(
                 text="[color=00E5FF]Username:[/color]", 
                 markup=True, 
@@ -107,7 +104,6 @@ try:
             )
             card.add_widget(self.username)
 
-            # Password Section
             card.add_widget(Label(
                 text="[color=00E5FF]Password:[/color]", 
                 markup=True, 
@@ -132,11 +128,9 @@ try:
             )
             card.add_widget(self.password)
 
-            # Error / Status
             self.status = Label(text="", markup=True, size_hint_y=None, height=dp(25), font_size='12sp')
             card.add_widget(self.status)
 
-            # Login Button
             login_btn = Button(
                 text="LOGIN TO BOT",
                 size_hint_y=None,
@@ -151,9 +145,8 @@ try:
 
             root.add_widget(card)
 
-            # Footer Space
             footer = Label(
-                text="[color=445566]System Protected • v3.1 Fixed[/color]",
+                text="[color=445566]System Protected • v3.2 Updated[/color]",
                 markup=True,
                 font_size='11sp',
                 size_hint_y=None,
@@ -191,7 +184,7 @@ try:
                 self.bg = Rectangle(size=Window.size, pos=self.pos)
             self.bind(size=self._update_bg, pos=self._update_bg)
 
-            layout = BoxLayout(orientation='vertical', padding=[dp(15), dp(20), dp(15), dp(15)], spacing=dp(10))
+            layout = BoxLayout(orientation='vertical', padding=[dp(15), dp(15), dp(15), dp(15)], spacing=dp(10))
 
             header = Label(
                 text="[b][color=00E5FF]QUOTEX[/color] [color=FFFFFF]LIVE SIGNALS[/color][/b]",
@@ -211,8 +204,9 @@ try:
             )
             ctrl_card.bind(minimum_height=ctrl_card.setter('height'))
 
+            # Expanded Quotex Asset List
             ctrl_card.add_widget(Label(
-                text="[color=8A99AD]Select Asset:[/color]", 
+                text="[color=8A99AD]Select Asset / Pair:[/color]", 
                 markup=True, 
                 size_hint_y=None, 
                 height=dp(18), 
@@ -220,7 +214,12 @@ try:
             ))
             self.pair_spinner = Spinner(
                 text='EURUSD (OTC)',
-                values=('EURUSD (OTC)', 'GBPUSD (OTC)', 'USDJPY (OTC)', 'EURGBP', 'BTCUSD', 'XAUUSD (GOLD)'),
+                values=(
+                    'EURUSD (OTC)', 'GBPUSD (OTC)', 'USDJPY (OTC)', 'AUDCAD (OTC)',
+                    'USDBRL (OTC)', 'USDINR (OTC)', 'USDBDT (OTC)', 'EURGBP (OTC)',
+                    'EURUSD', 'GBPUSD', 'USDJPY', 'USDCAD', 'AUDUSD', 'USDCHF',
+                    'NZDUSD', 'BTCUSD', 'ETHUSD', 'XAUUSD (GOLD)'
+                ),
                 size_hint_y=None,
                 height=dp(42),
                 background_normal='',
@@ -229,8 +228,9 @@ try:
             )
             ctrl_card.add_widget(self.pair_spinner)
 
+            # Added 5s, 10s, 15s, 30s Timeframes
             ctrl_card.add_widget(Label(
-                text="[color=8A99AD]Select Timeframe:[/color]", 
+                text="[color=8A99AD]Select Trade Duration:[/color]", 
                 markup=True, 
                 size_hint_y=None, 
                 height=dp(18), 
@@ -238,7 +238,10 @@ try:
             ))
             self.tf_spinner = Spinner(
                 text='1 MINUTE',
-                values=('1 MINUTE', '2 MINUTES', '5 MINUTES'),
+                values=(
+                    '5 SECONDS', '10 SECONDS', '15 SECONDS', '30 SECONDS',
+                    '1 MINUTE', '2 MINUTES', '5 MINUTES'
+                ),
                 size_hint_y=None,
                 height=dp(42),
                 background_normal='',
@@ -264,7 +267,7 @@ try:
             self.result_card = ColoredCard(bg_color=CARD_COLOR, orientation='vertical', padding=[dp(12), dp(12), dp(12), dp(12)])
             scroll = ScrollView()
             self.result_label = Label(
-                text="[color=8A99AD]Select asset above and tap\n[b]'GENERATE SIGNAL'[/b][/color]",
+                text="[color=8A99AD]Select asset & duration above, then tap\n[b]'GENERATE SIGNAL'[/b][/color]",
                 markup=True,
                 size_hint_y=None,
                 text_size=(None, None),
@@ -300,19 +303,19 @@ try:
             direction = random.choice(["CALL (UP ⬆)", "PUT (DOWN ⬇)"])
             is_call = "CALL" in direction
             color_code = "00E676" if is_call else "FF3355"
-            accuracy = random.randint(89, 97)
+            accuracy = random.randint(89, 98)
             
             now = datetime.now()
-            entry_time = (now + timedelta(seconds=10)).strftime("%H:%M:%S")
+            entry_time = (now + timedelta(seconds=5)).strftime("%H:%M:%S")
             
             self.result_label.text = (
                 f"[b][color=00E5FF]=== LIVE SIGNAL RESULTS ===[/color][/b]\n\n"
                 f"[b]PAIR:[/b] [color=FFFFFF]{pair}[/color]\n"
-                f"[b]TIMEFRAME:[/b] [color=FFFFFF]{timeframe}[/color]\n\n"
+                f"[b]DURATION:[/b] [color=FFFFFF]{timeframe}[/color]\n\n"
                 f"[b]ACTION:[/b] [color={color_code}][size=22sp]{direction}[/size][/color]\n\n"
                 f"[b]ENTRY TIME:[/b] [color=FFFFFF]{entry_time}[/color]\n"
                 f"[b]WIN RATE:[/b] [color=00E676]{accuracy}% Accuracy[/color]\n"
-                f"[b]STRATEGY:[/b] [color=8A99AD]Martingale Max 1 Step[/color]\n\n"
+                f"[b]STRATEGY:[/b] [color=8A99AD]Non-Martingale / Direct Entry[/color]\n\n"
                 f"[i][color=556578]Execute trade immediately at candle start.[/color][/i]"
             )
 
@@ -344,5 +347,3 @@ except Exception as e:
             return sv
 
     ErrorApp().run()
-
-            
