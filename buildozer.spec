@@ -47,7 +47,7 @@ android.ndk_api = 21
 # (bool) Accept SDK license automatically
 android.accept_sdk_license = True
 
-# (list) Pattern to blacklist / ignore during compilation (CRITICAL FIX)
+# (list) Pattern to blacklist / ignore during compilation
 android.blacklist_patterns = sqlite3/*,lib-dynload/test/*,lib-dynload/json/tests/*,*/test/*,*/tests/*,*/Lib/test/*
 
 # (bool) Enable AndroidX support
@@ -61,5 +61,5 @@ android.archs = arm64-v8a
 # (int) Log level
 log_level = 2
 
-# (int) Display warning if run as root
-warn_on_root = 1
+# (int) Display warning if run as root (FIXED: Set to 0 to bypass prompt)
+warn_on_root = 0
