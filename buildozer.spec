@@ -23,11 +23,8 @@ source.exclude_patterns = license, .gitignore, .github/*, */test/*, */tests/*
 # (string) Application versioning
 version = 1.0.0
 
-# (list) Application requirements
-requirements = python3,kivy
-
-# (str) Python-for-Android Branch (CRITICAL FIX: Fixes Lib/test compilation crash)
-p4a.branch = develop
+# (list) Application requirements (STABLE PYTHON FIX)
+requirements = python3==3.10.12,kivy
 
 # (str) Supported orientation
 orientation = portrait
@@ -49,9 +46,6 @@ android.ndk_api = 21
 
 # (bool) Accept SDK license automatically
 android.accept_sdk_license = True
-
-# (list) Pattern to blacklist / ignore during compilation
-android.blacklist_patterns = sqlite3/*,lib-dynload/test/*,lib-dynload/json/tests/*,*/test/*,*/tests/*,*/Lib/test/*
 
 # (bool) Enable AndroidX support
 android.enable_androidx = True
