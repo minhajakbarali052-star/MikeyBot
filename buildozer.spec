@@ -18,13 +18,13 @@ source.include_exts = py,png,jpg,kv,atlas
 # (list) Source files / directories to exclude
 source.exclude_exts = spec
 source.exclude_dirs = tests, bin, venv, .buildozer, .git, .github
-source.exclude_patterns = license, .gitignore, .github/*, */test/*, */tests/*
+source.exclude_patterns = license, .gitignore, .github/*
 
 # (string) Application versioning
 version = 1.0.0
 
-# (list) Application requirements (STABLE PYTHON FIX)
-requirements = python3==3.10.12,kivy
+# (list) Application requirements
+requirements = python3,kivy
 
 # (str) Supported orientation
 orientation = portrait
@@ -41,8 +41,8 @@ android.api = 33
 # (int) Minimum API support
 android.minapi = 21
 
-# (int) Android NDK API
-android.ndk_api = 21
+# (str) Android NDK Version (FIX: Forces stable NDK 25b instead of buggy r28c)
+android.ndk = 25b
 
 # (bool) Accept SDK license automatically
 android.accept_sdk_license = True
