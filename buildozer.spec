@@ -26,6 +26,9 @@ version = 1.0.0
 # (list) Application requirements
 requirements = python3,kivy
 
+# (str) Python-for-Android Branch (CRITICAL FIX: Fixes Lib/test compilation crash)
+p4a.branch = develop
+
 # (str) Supported orientation
 orientation = portrait
 
@@ -61,5 +64,5 @@ android.archs = arm64-v8a
 # (int) Log level
 log_level = 2
 
-# (int) Display warning if run as root (FIXED: Set to 0 to bypass prompt)
+# (int) Display warning if run as root
 warn_on_root = 0
