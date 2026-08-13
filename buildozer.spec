@@ -11,9 +11,9 @@ source.include_exts = py,png,jpg,kv,atlas
 source.exclude_dirs = tests, bin, venv, .buildozer, .git, .github
 source.exclude_patterns = license, .gitignore, .github/*
 
-# Version & Requirements
+# Version & Requirements (Stable Version Locked)
 version = 1.0.0
-requirements = python3,kivy
+requirements = python3==3.10.11,kivy
 
 # UI & Permissions
 orientation = portrait
@@ -29,5 +29,6 @@ android.enable_androidx = True
 android.archs = arm64-v8a
 
 [buildozer]
-log_level = 2
+# Optimized log level to prevent log overflow freeze
+log_level = 1
 warn_on_root = 0
