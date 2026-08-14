@@ -8,8 +8,8 @@ package.domain = org.mikeybot
 # Source code settings
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
-source.exclude_dirs = tests, bin, venv, .buildozer, .git, .github
-source.exclude_patterns = license, .gitignore, .github/*
+source.exclude_dirs = tests, bin, venv, .buildozer, .git, .github, kivy/tests
+source.exclude_patterns = license, .gitignore, .github/*, */tests/*, */test/*
 
 # Version & Requirements
 version = 1.0.0
@@ -28,6 +28,10 @@ android.accept_sdk_license = True
 android.enable_androidx = True
 android.archs = arm64-v8a
 
+# Blacklist unneeded test files to save compilation time & storage
+android.blacklist_patterns = sqlite3/*,lib-dynload/test/*,lib-dynload/json/tests/*,*/test/*,*/tests/*,*/Lib/test/*,kivy/tests/*
+
 [buildozer]
-log_level = 2
+# Log level 1 prevents 30,000+ line log overflow crash on GitHub
+log_level = 1
 warn_on_root = 0
