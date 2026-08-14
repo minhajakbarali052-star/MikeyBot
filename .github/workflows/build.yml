@@ -36,29 +36,25 @@ jobs:
     - name: Install Compatible Toolchain
       run: |
         python -m pip install --upgrade pip setuptools wheel
-        python -m pip install "cython==0.29.33"
-        python -m pip install "buildozer==1.5.0"
+        pip install "cython==0.29.33" "buildozer==1.5.0"
 
-    - name: Bypass Android SDK License Prompts
+    - name: Clean Cache & Pre-Accept Global SDK Licenses
       run: |
-        mkdir -p ~/.android
+        rm -rf .buildozer bin ~/.buildozer
+        mkdir -p ~/.android/licenses
         touch ~/.android/repositories.cfg
-        mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
-        mkdir -p .buildozer/android/platform/android-sdk/licenses
-        
-        # Inject standard Android SDK License hashes to prevent interactive hang/Broken Pipe
-        printf "24333f8a6371720ea8f375f32eb4a1f59ef177ee\n563754f9b03b077d8bc0866a4e0f223f3800d31e\nf1545b6901800125e1146200216d10f545464115\n" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
-        printf "24333f8a6371720ea8f375f32eb4a1f59ef177ee\n563754f9b03b077d8bc0866a4e0f223f3800d31e\nf1545b6901800125e1146200216d10f545464115\n" > .buildozer/android/platform/android-sdk/licenses/android-sdk-license
+        printf "89330172875f14407300c017d740c0c0594911d3\n24333f8a6371720ea8f375f32eb4a1f59ef177ee\n563754f9b03b077d8bc0866a4e0f223f3800d31e\nf1545b6901800125e1146200216d10f545464115\n33b622841d24e326127dd6372853225b00f2883a\n" > ~/.android/licenses/android-sdk-license
 
-    - name: Clean Workspace Cache
+    - name: Build APK (Safely handle terminal pipes)
+      shell: bash
       run: |
-        rm -rf .buildozer bin
-
-    - name: Build APK
-      env:
-        APP_ANDROID_ACCEPT_SDK_LICENSES: '1'
-      run: |
-        buildozer android debug
+        set +e
+        yes | buildozer android debug
+        status=${PIPESTATUS[1]}
+        if [ $status -ne 0 ]; then
+          echo "Buildozer failed with exit code $status"
+          exit $status
+        fi
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
