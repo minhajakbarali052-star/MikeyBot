@@ -39,10 +39,21 @@ jobs:
         python -m pip install "cython==0.29.36"
         python -m pip install "buildozer==1.5.0"
 
-    - name: Setup Android SDK Environment
+    - name: Pre-accept Android SDK Licenses
       run: |
-        mkdir -p ~/.android
+        mkdir -p ~/.android/licenses
         touch ~/.android/repositories.cfg
+        cat << 'EOF' > ~/.android/licenses/android-sdk-license
+        89330172875f14407300c017d740c0c0594911d3
+        24333f8a6371720ea8f375f32eb4a1f59ef177ee
+        563754f9b03b077d8bc0866a4e0f223f3800d31e
+        f1545b6901800125e1146200216d10f545464115
+        33b622841d24e326127dd6372853225b00f2883a
+        EOF
+
+    - name: Clean Previous Cache
+      run: |
+        rm -rf .buildozer bin
 
     - name: Build Android APK
       env:
