@@ -24,37 +24,42 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install System Dependencies
+    - name: Install System Build Dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y \
           build-essential git ffmpeg libsqlite3-dev sqlite3 bzip2 libbz2-dev \
           zlib1g-dev libssl-dev openssl libgdbm-dev libgdbm-compat-dev liblldb-dev \
           libffi-dev libncurses5-dev libncursesw5-dev libreadline-dev libdb5.3-dev \
-          p7zip-full unzip libtool autoconf automake cmake gettext pkg-config libltdl-dev zip
+          p7zip-full unzip libtool autoconf automake cmake gettext pkg-config libltdl-dev zip lld ninja-build
 
-    - name: Install Compatible Toolchain
+    - name: Install Python Toolchain
       run: |
-        python -m pip install --upgrade pip setuptools wheel
-        pip install "cython==0.29.33" "buildozer==1.5.0"
+        python -m pip install --upgrade pip setuptools wheel virtualenv
+        python -m pip install "cython==0.29.36"
+        python -m pip install "buildozer==1.5.0"
 
-    - name: Clean Cache & Pre-Accept Global SDK Licenses
+    - name: Pre-accept Android SDK Licenses
       run: |
-        rm -rf .buildozer bin ~/.buildozer
         mkdir -p ~/.android/licenses
         touch ~/.android/repositories.cfg
-        printf "89330172875f14407300c017d740c0c0594911d3\n24333f8a6371720ea8f375f32eb4a1f59ef177ee\n563754f9b03b077d8bc0866a4e0f223f3800d31e\nf1545b6901800125e1146200216d10f545464115\n33b622841d24e326127dd6372853225b00f2883a\n" > ~/.android/licenses/android-sdk-license
+        cat << 'EOF' > ~/.android/licenses/android-sdk-license
+        89330172875f14407300c017d740c0c0594911d3
+        24333f8a6371720ea8f375f32eb4a1f59ef177ee
+        563754f9b03b077d8bc0866a4e0f223f3800d31e
+        f1545b6901800125e1146200216d10f545464115
+        33b622841d24e326127dd6372853225b00f2883a
+        EOF
 
-    - name: Build APK (Safely handle terminal pipes)
-      shell: bash
+    - name: Clean Previous Build Cache
       run: |
-        set +e
-        yes | buildozer android debug
-        status=${PIPESTATUS[1]}
-        if [ $status -ne 0 ]; then
-          echo "Buildozer failed with exit code $status"
-          exit $status
-        fi
+        rm -rf .buildozer bin
+
+    - name: Build Android APK
+      env:
+        APP_ANDROID_ACCEPT_SDK_LICENSES: '1'
+      run: |
+        buildozer android debug
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
