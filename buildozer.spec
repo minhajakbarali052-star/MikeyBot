@@ -11,16 +11,16 @@ source.include_exts = py,png,jpg,kv,atlas
 source.exclude_dirs = tests, bin, venv, .buildozer, .git, .github
 source.exclude_patterns = license, .gitignore, .github/*
 
-# Version & Requirements
+# Version & Locked Requirements (Prevents Freeze Loop)
 version = 1.0.0
-requirements = python3,kivy
+requirements = python3,kivy==2.2.1
 
 # UI & Permissions
 orientation = portrait
 fullscreen = 0
 android.permissions = INTERNET,NETWORK_STATE
 
-# Target API & NDK
+# Target API & Stable NDK
 android.api = 33
 android.minapi = 21
 android.ndk = 25b
