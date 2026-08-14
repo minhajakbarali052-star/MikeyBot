@@ -23,13 +23,6 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
-        update-environment: true
-
-    - name: Force Python 3.10 Globally
-      run: |
-        sudo update-alternatives --install /usr/bin/python3 python3 $(which python3) 1
-        python3 -m pip install --upgrade pip setuptools wheel
-        python3 -m pip install "legacy-cgi" || true
 
     - name: Install System Dependencies
       run: |
@@ -40,15 +33,15 @@ jobs:
           libffi-dev libncurses5-dev libncursesw5-dev libreadline-dev libdb5.3-dev \
           p7zip-full unzip libtool autoconf automake cmake gettext pkg-config libltdl-dev zip lld ninja-build
 
-    - name: Install Pinned Toolchain
+    - name: Install Build Tools
       run: |
-        python3 -m pip install "cython==0.29.36"
-        python3 -m pip install "buildozer==1.5.0"
+        python -m pip install --upgrade pip setuptools wheel virtualenv
+        python -m pip install "cython==0.29.36"
+        python -m pip install "buildozer==1.5.0"
 
     - name: Build Android APK
       env:
         APP_ANDROID_ACCEPT_SDK_LICENSES: '1'
-        PIP_NO_BUILD_ISOLATION: '0'
       run: |
         buildozer android debug
 
@@ -57,3 +50,4 @@ jobs:
       with:
         name: mikeybot-apk
         path: bin/*.apk
+        if-no-files-found: error
