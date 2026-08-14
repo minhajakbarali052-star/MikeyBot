@@ -33,31 +33,21 @@ jobs:
           libffi-dev libncurses5-dev libncursesw5-dev libreadline-dev libdb5.3-dev \
           p7zip-full unzip libtool autoconf automake cmake gettext pkg-config libltdl-dev zip lld ninja-build
 
-    - name: Install Python Toolchain
+    - name: Install Compatible Toolchain
       run: |
         python -m pip install --upgrade pip setuptools wheel virtualenv
         python -m pip install "cython==0.29.36"
         python -m pip install "buildozer==1.5.0"
 
-    - name: Pre-accept Android SDK Licenses
+    - name: Setup Android SDK Environment
       run: |
-        mkdir -p ~/.android/licenses
+        mkdir -p ~/.android
         touch ~/.android/repositories.cfg
-        cat << 'EOF' > ~/.android/licenses/android-sdk-license
-        89330172875f14407300c017d740c0c0594911d3
-        24333f8a6371720ea8f375f32eb4a1f59ef177ee
-        563754f9b03b077d8bc0866a4e0f223f3800d31e
-        f1545b6901800125e1146200216d10f545464115
-        33b622841d24e326127dd6372853225b00f2883a
-        EOF
-
-    - name: Clean Previous Build Cache
-      run: |
-        rm -rf .buildozer bin
 
     - name: Build Android APK
       env:
         APP_ANDROID_ACCEPT_SDK_LICENSES: '1'
+        ACCEPT_BUILD_TOOLS_CHECKSUM: '1'
       run: |
         buildozer android debug
 
