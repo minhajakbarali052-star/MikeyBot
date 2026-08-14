@@ -19,9 +19,10 @@ jobs:
     - name: Build APK with Docker Container
       run: |
         docker run --rm \
+          --entrypoint /bin/bash \
           -e BUILDOZER_WARN_ON_ROOT=0 \
           -v ${{ github.workspace }}:/home/user/app \
-          kivy/buildozer sh -c "yes | buildozer android debug"
+          kivy/buildozer -c "buildozer android debug"
 
     - name: Fix Artifact Ownership Permissions
       if: always()
