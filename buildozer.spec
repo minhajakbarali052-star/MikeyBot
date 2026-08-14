@@ -11,9 +11,9 @@ source.include_exts = py,png,jpg,kv,atlas
 source.exclude_dirs = tests, bin, venv, .buildozer, .git, .github
 source.exclude_patterns = license, .gitignore, .github/*
 
-# Version & Requirements
+# Version & Requirements (Kivy 2.3.0 fix for Cython)
 version = 1.0.0
-requirements = python3,kivy
+requirements = python3,kivy==2.3.0
 
 # UI & Permissions
 orientation = portrait
@@ -28,5 +28,6 @@ android.enable_androidx = True
 android.archs = arm64-v8a
 
 [buildozer]
-log_level = 2
+# Log level 1 fixes huge log truncation issue
+log_level = 1
 warn_on_root = 0
