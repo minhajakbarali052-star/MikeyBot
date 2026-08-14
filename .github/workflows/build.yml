@@ -13,18 +13,16 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    # Permission fix before compilation
     - name: Fix Directory Permissions
       run: sudo chmod -R 777 $GITHUB_WORKSPACE
 
-    # Run Buildozer inside official container
     - name: Build APK with Docker Container
       run: |
         docker run --rm \
+          -e BUILDOZER_WARN_ON_ROOT=0 \
           -v ${{ github.workspace }}:/home/user/app \
-          kivy/buildozer android debug
+          kivy/buildozer sh -c "yes | buildozer android debug"
 
-    # Crucial Fix: Re-claim ownership of bin/ folder so artifact step can read the APK
     - name: Fix Artifact Ownership Permissions
       if: always()
       run: sudo chown -R $USER:$USER .
