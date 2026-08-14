@@ -31,16 +31,17 @@ jobs:
           build-essential git ffmpeg libsqlite3-dev sqlite3 bzip2 libbz2-dev \
           zlib1g-dev libssl-dev openssl libgdbm-dev libgdbm-compat-dev liblldb-dev \
           libffi-dev libncurses5-dev libncursesw5-dev libreadline-dev libdb5.3-dev \
-          p7zip-full unzip libtool autoconf automake cmake gettext pkg-config libltdl-dev
+          p7zip-full unzip libtool autoconf automake cmake gettext pkg-config libltdl-dev zip
 
-    - name: Install Stable Cython & Buildozer
+    - name: Install Cython & Buildozer
       run: |
         python -m pip install --upgrade pip setuptools
         pip install "cython<3.0.0" buildozer
 
-    - name: Build APK with Buildozer
+    - name: Clean Old Cache & Build APK
       run: |
-        yes | buildozer android debug
+        rm -rf .buildozer bin
+        buildozer android debug
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
