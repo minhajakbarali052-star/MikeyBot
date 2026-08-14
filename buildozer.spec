@@ -19,7 +19,7 @@ requirements = python3,kivy==2.2.1,kivymd==1.1.1,requests,urllib3,certifi,charde
 orientation = portrait
 fullscreen = 0
 
-# Android Permissions & Build Specs
+# Android Specs
 android.permissions = INTERNET,ACCESS_NETWORK_STATE
 android.api = 33
 android.minapi = 21
