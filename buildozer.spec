@@ -20,7 +20,7 @@ orientation = portrait
 fullscreen = 0
 android.permissions = INTERNET,NETWORK_STATE
 
-# Target API & NDK
+# Target API & NDK (Stable NDK 25b)
 android.api = 33
 android.minapi = 21
 android.ndk = 25b
@@ -29,5 +29,6 @@ android.enable_androidx = True
 android.archs = arm64-v8a
 
 [buildozer]
-log_level = 2
+# FIX: log_level = 1 stops GitHub runner buffer overflow crash
+log_level = 1
 warn_on_root = 0
