@@ -13,26 +13,21 @@ source.exclude_patterns = license, .gitignore, .github/*
 
 # Version & Requirements
 version = 1.0.0
-requirements = python3,kivy==2.3.0
+requirements = python3,kivy
 
 # UI & Permissions
 orientation = portrait
 fullscreen = 0
 android.permissions = INTERNET,NETWORK_STATE
 
-# Target API & MinAPI
+# Target API & NDK
 android.api = 33
 android.minapi = 21
-
-# CRITICAL FIX: Lock NDK to stable 25b (prevents auto-downloading buggy NDK r28c)
 android.ndk = 25b
-android.ndk_api = 21
-
 android.accept_sdk_license = True
 android.enable_androidx = True
 android.archs = arm64-v8a
 
 [buildozer]
-# Log level 1 keeps logs clean
-log_level = 1
+log_level = 2
 warn_on_root = 0
