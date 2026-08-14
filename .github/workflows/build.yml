@@ -16,13 +16,13 @@ jobs:
     - name: Fix Directory Permissions
       run: sudo chmod -R 777 $GITHUB_WORKSPACE
 
+    # Fix: 'yes |' and '-i' (interactive STDIN) feeds 'y' into Buildozer root prompt
     - name: Build APK with Docker Container
       run: |
-        docker run --rm \
-          --entrypoint /bin/bash \
+        yes | docker run -i --rm \
           -e BUILDOZER_WARN_ON_ROOT=0 \
           -v ${{ github.workspace }}:/home/user/app \
-          kivy/buildozer -c "buildozer android debug"
+          kivy/buildozer android debug
 
     - name: Fix Artifact Ownership Permissions
       if: always()
