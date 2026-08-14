@@ -13,8 +13,8 @@ source.include_exts = py,png,jpg,jpeg,kv,atlas,json,txt
 source.exclude_dirs = tests,bin,venv,.venv,.buildozer,.git,.github
 source.exclude_patterns = *.pyc,*.pyo,__pycache__/*,license,.gitignore
 
-# Requirements
-requirements = python3==3.10.11,kivy==2.3.0
+# Requirements (Standard python3 recipe)
+requirements = python3,kivy==2.3.0
 
 # UI & Display
 orientation = portrait
