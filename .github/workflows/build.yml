@@ -2,9 +2,7 @@ name: Build Android APK
 
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
@@ -12,93 +10,61 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-      - name: Set up Python 3.14
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.14"
-          cache: "pip"
+    - name: Set up Java 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
 
-      - name: Set up Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: "temurin"
-          java-version: "17"
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
 
-      - name: Install System Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            git \
-            zip \
-            unzip \
-            p7zip-full \
-            autoconf \
-            automake \
-            libtool \
-            pkg-config \
-            gettext \
-            libltdl-dev \
-            libffi-dev \
-            libssl-dev \
-            zlib1g-dev \
-            libncurses5-dev \
-            libncursesw5-dev \
-            cmake \
-            ninja-build \
-            ccache
+    - name: Install System Build Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential git ffmpeg libsqlite3-dev sqlite3 bzip2 libbz2-dev \
+          zlib1g-dev libssl-dev openssl libgdbm-dev libgdbm-compat-dev liblldb-dev \
+          libffi-dev libncurses5-dev libncursesw5-dev libreadline-dev libdb5.3-dev \
+          p7zip-full unzip libtool autoconf automake cmake gettext pkg-config libltdl-dev zip lld ninja-build \
+          libgl1-mesa-dev libgles2-mesa-dev
 
-      - name: Install Buildozer Toolchain
-        run: |
-          python -m pip install --upgrade pip setuptools wheel
-          python -m pip install legacy-cgi
-          python -m pip install "Cython==0.29.34"
-          python -m pip install "git+https://github.com/kivy/buildozer.git"
+    - name: Install Pinned Build Tools
+      run: |
+        python -m pip install --upgrade pip setuptools wheel virtualenv
+        python -m pip install "cython==0.29.36"
+        python -m pip install "buildozer==1.5.0"
 
-      - name: Verify Python and Cython
-        run: |
-          python --version
-          python3 --version
-          cython --version
-          buildozer --version
+    - name: Pre-accept Android SDK Licenses
+      run: |
+        mkdir -p ~/.android/licenses
+        touch ~/.android/repositories.cfg
+        cat << 'EOF' > ~/.android/licenses/android-sdk-license
+        89330172875f14407300c017d740c0c0594911d3
+        24333f8a6371720ea8f375f32eb4a1f59ef177ee
+        563754f9b03b077d8bc0866a4e0f223f3800d31e
+        f1545b6901800125e1146200216d10f545464115
+        33b622841d24e326127dd6372853225b00f2883a
+        EOF
 
-      - name: Pre-accept Android SDK Licenses
-        run: |
-          mkdir -p "$HOME/.android"
-          mkdir -p "$HOME/.android/licenses"
-          touch "$HOME/.android/repositories.cfg"
+    - name: Clean Previous Cache
+      run: |
+        rm -rf .buildozer bin
 
-          printf '%s\n' \
-            '8933bad161af4178b118591cbc368e6f' \
-            'd56f5187479451eabf01fb78af6dfcb131a6481b' \
-            '24333f8a63b6825ea9c5514f83c2829b004d1fee' \
-            'd975f751698a77b6629ae7e7c7c8c5b6c0f8e8d4' \
-            > "$HOME/.android/licenses/android-sdk-license"
+    - name: Build Android APK
+      env:
+        APP_ANDROID_ACCEPT_SDK_LICENSES: '1'
+      run: |
+        buildozer android debug
 
-      - name: Clean Build
-        run: |
-          rm -rf .buildozer
-          rm -rf bin
-
-      - name: Build Android APK
-        env:
-          PYTHONFORANDROID_PREREQUISITES_INSTALL_INTERACTIVE: "0"
-          BUILDOZER_WARN_ON_ROOT: "0"
-        run: |
-          buildozer -v android debug
-
-      - name: Verify APK
-        run: |
-          echo "Generated APK files:"
-          ls -lah bin/
-          test -n "$(find bin -maxdepth 1 -type f -name '*.apk' -print -quit)"
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: mikeybot-apk
-          path: bin/*.apk
-          if-no-files-found: error
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: mikeybot-apk
+        path: bin/*.apk
+        if-no-files-found: error
